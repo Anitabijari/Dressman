@@ -1,0 +1,424 @@
+--1. Select a user by his name and view all of his contact information
+USE Dressman
+-- Retrieve contact information for a user with the name "Liam Johnson"
+SELECT 
+	FirstName, 
+	LastName, 
+	EmailAddress, 
+	PhoneNumber
+FROM
+  ContactDetails
+WHERE 
+  FirstName = 'Liam' AND LastName ='Johnson' ;
+-- -----------------------------------------------------------------
+--2. Which user has spent the most money?
+USE Dressman
+SELECT TOP 1
+	CONCAT (C.FirstName, ' -', C.LastName) AS ContactName ,
+	MAX(P.PaymentAmount) AS TotalSpent 
+			
+FROM UserAccount U
+INNER JOIN ContactDetails C ON C.UserID=U.UserID
+INNER JOIN Orders O ON U.UserID = O.UserID
+INNER JOIN PaymentMethods P ON O.OrderID = P.OrderID
+GROUP BY  
+	CONCAT (C.FirstName, ' -', C.LastName)
+	HAVING COUNT(FirstName) = 1 AND COUNT(LastName) =1 -- Filter for users with exactly one occurrence
+ORDER BY 
+	TotalSpent DESC;
+
+
+-- ----------------------------------------------------------------------
+
+--3. Select all users from a specific country and view all their orders
+USE Dressman
+SELECT 
+       A.Country,
+	   CONCAT (C.FirstName, ' -', C.LastName) AS FullName,
+	   O.TotalAmount,
+	   OS.StatusName
+FROM 
+       UserAccount AS U
+INNER JOIN 
+      ContactDetails AS C ON U.UserID = C.UserID
+INNER JOIN 
+     Addresses AS A ON C.ContactID = A.ContactID
+INNER JOIN
+	 Orders AS O ON  U.UserID = O.UserID
+INNER JOIN 
+     OrderStatus AS OS ON O.OrderID = OS.OrderID
+WHERE 
+      A.Country = 'Sweden';
+--///////////////////
+--SECOND SOLLOTION 
+-- Select relevant information for users from a specific country and their orders
+CREATE PROCEDURE GetallCustomersfromACountry
+@theCountry NVARCHAR(50)
+AS
+BEGIN
+    SELECT  
+		A.Country,
+	   CONCAT (C.FirstName, ' -', C.LastName) AS FullName,
+	   O.TotalAmount,
+	   OS.StatusName
+FROM 
+       UserAccount AS U
+INNER JOIN 
+      ContactDetails AS C ON U.UserID = C.UserID
+INNER JOIN 
+     Addresses AS A ON C.ContactID = A.ContactID
+INNER JOIN
+	 Orders AS O ON  U.UserID = O.UserID
+INNER JOIN 
+     OrderStatus AS OS ON O.OrderID = OS.OrderID
+where   
+	 Country = @theCountry
+    ORDER BY 
+        O.TotalAmount DESC;
+END;
+ 
+EXEC GetallCustomersfromACountry 'Sweden';--Execute the stored procedure for users from Sweden
+EXEC GetallCustomersfromACountry 'USA';-- Execute the stored procedure for users from the USA
+-- --------------------------------------------------
+--4. What is the most expensive product in the store?
+USE Dressman
+SELECT TOP 1
+   CONCAT (ProductName , 'is ' , Price, ' ' , 'SEK') AS MostExpensive
+FROM
+   Product
+ORDER BY 
+   Price DESC
+-- -----------------------------------------------------
+--5. How many products are there in total in the store?
+USE Dressman
+SELECT COUNT(ProductID) AS TotalInStore
+FROM 
+   Product
+-- ---------------------------------------------------------
+--6. How much is the total value (SEK) of all products?
+USE Dressman
+SELECT 
+	CONCAT(SUM(Price),'  ', '(SEK)') AS TotalValue
+FROM 
+	Product;
+-- ------------------------------------------------------
+--7. Create a syntax that uses GROUP BY
+--Retrieve full names and addresses for users, grouped by full name and full address
+
+USE Dressman
+SELECT
+	   CONCAT (C.FirstName, '-', C.LastName) AS FullName,
+	   CONCAT ( A.Country, '-',  A.City,'-',StreetAddress) AS FullAdress
+FROM 
+       UserAccount AS U
+INNER JOIN  
+       ContactDetails AS C ON C.UserID=U.UserID
+INNER JOIN 
+        Addresses AS A  ON A.ContactID = C.ContactID
+GROUP BY 
+     C.FirstName, C.LastName, A.Country, A.City, StreetAddress;
+
+ ---------------------------
+ --SECOND SYNTAX
+ --  Retrieve total orders, order details, and contact names for users, grouped by order details,
+-- with a condition that the count of orders should be less than 5
+	SELECT 
+    COUNT(O.OrderID) AS TotalOrders,
+    CONCAT(MIN(O.OrderDate), '-', MAX(O.TotalAmount), ' SEK') AS FULLOrder,
+    CONCAT(C.FirstName, ' -', C.LastName) AS ContactName
+FROM
+    ContactDetails AS C
+INNER JOIN
+    UserAccount AS U ON C.UserID = U.UserID
+INNER JOIN 
+    Orders AS O ON U.UserID = O.UserID
+GROUP BY 
+    C.FirstName,
+    C.LastName
+HAVING 
+    COUNT(O.OrderID) < 5;
+
+ -- -------------------------------------------------------
+--8. Create syntaxes that use MIN, MAX, SUM, & AVG
+-- 8. Retrieve the minimum, maximum, sum, and average total amounts of orders
+--for users with UserID and OrderID less than 30.
+
+USE Dressman
+SELECT TOP 1
+  
+    (SELECT MIN(TotalAmount) FROM Orders) AS MINofAMOUNT,
+    (SELECT MAX(TotalAmount) FROM Orders) AS MAXofAMOUNT,
+    (SELECT SUM(TotalAmount) FROM Orders) AS SUMOfAmount,
+    (SELECT AVG(TotalAmount) FROM Orders) AS AVGofAMOUNT
+FROM 
+    [UserAccount] AS U 
+INNER JOIN Orders AS O ON U.UserID = O.UserID
+WHERE U.UserID <30 and o.OrderID <30
+
+--///////////////////////////////////////
+ --SECOND SYNTAX 
+ -- 8. Retrieve the average, minimum, maximum, and total prices for each product.
+
+DECLARE @AVG FLOAT
+DECLARE @PROID INT
+DECLARE @MIN INT
+DECLARE @MAX INT
+DECLARE @SUM INT
+SET @AVG =0
+SET @MIN=0
+SET	@MAX=0
+SET	@SUM=0
+SET  @PROID= 1
+WHILE @PROID <=(SELECT COUNT(*) FROM Product )-- How many products are there in total in the store
+BEGIN   -- Calculate average, minimum, maximum, and total prices for the current product
+
+SELECT 
+	@AVG=AVG(Price),
+	@MIN=MIN(Price),
+	@MAX=MAX(Price),
+	@SUM=SUM(Price)
+	FROM Product
+	WHERE @PROID= ProductID
+	-- Print the results for the current product
+	PRINT 'THE AVRAGE  OF PRUDUCT WITH PRODUCT ID  ' +CAST(@PROID AS NVARCHAR ) + ' IS '+ CAST(@AVG AS NVARCHAR )
+	PRINT 'THE MAXIMUM OF PRUDUCT WITH PRODUCT ID  ' +CAST(@PROID AS NVARCHAR ) + ' IS '+ CAST(@MAX AS NVARCHAR )
+	PRINT 'THE MINIMUM OF PRUDUCT WITH PRODUCT ID  ' +CAST(@PROID AS NVARCHAR ) + ' IS '+ CAST(@MIN AS NVARCHAR )
+	PRINT 'THE TOTAL   OF PRUDUCT WITH PRODUCT ID  ' +CAST(@PROID AS NVARCHAR ) + ' IS '+ CAST(@SUM AS NVARCHAR )
+	SET @PROID = @PROID + 1 
+END
+
+-- --------------------------------------------------
+--9. Create syntaxes such as sort the result
+-- 9. Retrieve the total amount, username, and product name, 
+--grouped by product and username, and sort the result by the main total amount
+
+USE Dressman
+SELECT 
+	SUM (O.TotalAmount) AS MainTotal ,
+	U. Username  AS FullName,
+	P.ProductName
+FROM
+	UserAccount AS U 
+INNER JOIN 
+		Orders AS O  ON O.UserID=U.UserID
+INNER JOIN
+		OrderStatus AS  OS ON  OS.OrderID= O.OrderID
+INNER JOIN
+		 OrderProduct AS OP ON  O.OrderID =OP.OrderID
+INNER JOIN
+		Product AS P ON  P.ProductID=OP.ProductID
+GROUP BY
+		P.ProductName ,
+		U. Username
+ORDER BY 
+		MainTotal
+-- /////////////////////////////////////
+--  Retrieve distinct day and month combinations from OrderDate and sort the result by date
+
+SELECT  distinct 
+    FORMAT(OrderDate, 'MM-dd') AS DayAndMonth
+FROM
+   Orders
+ORDER BY
+    DayAndMonth asc; 
+-- -------------------------------------
+--10. Create a syntax that uses variables   Apply a 10% discount on all products  
+-- I want to offer a discount on all products 
+--in Dressman and i  decide to implement this by reducing the 
+--price of each product by 10%.
+
+-- Display prices before applying the discount
+SELECT PRICE FROM Product 
+
+
+USE Dressman
+DECLARE @SALE DECIMAL(2, 2)
+DECLARE @PID INT -- COUNTING OUR PRODUCT ID TO BE AT END 
+SET @SALE = 0.9 -- This is for a 10% discount (100% - 10% = 90% or 0.9)
+SET @PID = 1
+WHILE @PID <= (SELECT MAX(ProductID) FROM Product)  -- Determine the maximum ProductID
+
+BEGIN
+    UPDATE Product 
+    SET Price = ROUND(Price * @SALE, 2)
+    WHERE ProductID = @PID
+    SET @PID = @PID + 1      -- Move to the next ProductID
+
+END
+
+SELECT PRICE FROM Product -- Display prices after applying the discount
+
+-- -------------------------------------
+--11. Create at least 1 stored procedure
+--First stored procedure
+--all products with prices greater than a specified threshold.
+--I WANT TO BRING ALL Product THAT HAS PRCE MORE  THAN 100SEK
+CREATE PROCEDURE PriceMAXProduct
+@MaxPrice MONEY 
+-- Select product details where price is greater than @MaxPrice
+AS
+BEGIN
+SELECT 
+	 ProductName,
+	 Price 
+FROM
+	Product
+WHERE @MaxPrice< Price
+END;	
+EXEC PriceMAXProduct 100
+--////////////////////////////////////
+-- Second stored procedure
+--takes an OrderID as input and returns the product details ( P.ProductID, ProductName, Price, ) .
+-- This procedure retrieves product details for a given OrderID.
+
+CREATE PROCEDURE GetingOrderDetails
+@OrderID INT
+AS
+BEGIN
+SELECT
+	CONCAT (P.ProductName, ' WITH ID ' ,P.ProductID)  AS PRODUCTINFO,
+	P.Price
+FROM  Orders O
+INNER JOIN  OrderProduct OP ON O.OrderID=OP.OrderID
+INNER JOIN  Product  P ON P.ProductID=OP.ProductID
+WHERE @OrderID= O.OrderID
+END;
+-- Execute the stored procedure with OrderID = 12
+EXEC GetingOrderDetails 12
+-- ---------------------------------------------------------
+--12. Create a syntax that uses IF
+-- the products in the store and categorizes them based on their price. 
+--If a product's price is greater than or equal to 400 SEK, categorized as "High Price".
+--If the price is between 200 SEK and 400 SEK,  categorized as "Standard Price".
+--For prices below 200 SEK, categorized as "Low Price".
+
+DECLARE @Price INT
+DECLARE @PS INT
+DECLARE @COUNTER INT
+DECLARE @PRONAME NVARCHAR (50)
+SET @COUNTER=1
+-- Loop through all products
+WHILE @COUNTER <= (SELECT MAX(ProductID) FROM Product)--How many products are there in total in the store
+BEGIN 
+    -- Get ProductID, Price, and ProductName for the current product
+    SET @PS = (SELECT ProductID FROM Product WHERE ProductID = @COUNTER)
+    SET @Price = (SELECT Price FROM Product WHERE ProductID = @COUNTER)
+	 SET @PRONAME = (SELECT ProductName FROM Product WHERE ProductID = @COUNTER)
+	-- Check the price range and print a message
+    IF @Price >= 400
+        PRINT 'Poduct with pruductID '+CAST(@PS AS NVARCHAR) +' AND ProductName '  + CAST (@PRONAME AS NVARCHAR)+ ' IS High Price'
+    ELSE IF  @Price > 200 AND @Price < 400
+        PRINT 'Poduct with pruductID '+CAST(@PS AS NVARCHAR) +' AND ProductName '  + CAST (@PRONAME AS NVARCHAR) +' IS Standard Price'
+	ELSE 
+		PRINT 'Poduct with pruductID '+CAST(@PS AS NVARCHAR) +' AND ProductName '  + CAST (@PRONAME AS NVARCHAR) +' IS LOW Price'
+    SET @COUNTER = @COUNTER + 1
+END
+-- ---------------------------------------
+--13. Create at least 2 SQL views
+--First SQL views :display order details, a calculated total, and full contact information for each order.
+CREATE VIEW [Order_Product_Customer] AS
+SELECT
+	CONCAT (O.TotalAmount,'-',O.OrderDate) AS OrderInfo,
+	'Price * StockQuantity=' + CONVERT(VARCHAR, (P.Price * P.StockQuantity)) AS TOTALcalculates,
+	CONCAT (C.FirstName,'-',C.LastName,'-',C.EmailAddress,'-',C.PhoneNumber) AS FullCantactINFO
+FROM
+ContactDetails C
+INNER JOIN UserAccount U ON C.UserID= U.UserID
+INNER JOIN Orders O ON O.UserID=U.UserID
+INNER JOIN OrderProduct OP ON O.OrderID=OP.OrderID
+INNER JOIN Product P ON P.ProductID=OP.ProductID
+-- NOW I CAN SEE RESULT 
+SELECT *FROM [Order_Product_Customer]
+---------------
+--Delete the view
+DROP VIEW [Order_Product_Customer]
+--///////////////////////////////////////
+--Second SQL views: display review details, user names, product information, and the order date for reviews that have non-null review text
+CREATE VIEW [Review About Order] AS
+SELECT 
+    CONCAT(UR.ReviewText, ' AND Raiting is ', UR.Rating) AS ReviewINFO,
+    U.Username AS FullName ,
+    CONCAT(P.ProductName, ' and ', P.DescriptionOfProduct, ' With price:', P.Price) AS FullProductINFO,
+	FORMAT(OrderDate, 'MM-dd') AS DayAndMonth
+ FROM
+    UserAccount U
+   INNER JOIN UserReview UR ON U.UserID=UR.UserID
+    INNER JOIN Orders O ON O.UserID = U.UserID
+    INNER JOIN OrderProduct OP ON O.OrderID = OP.OrderID
+    INNER JOIN Product P ON P.ProductID = OP.ProductID
+WHERE UR.ReviewText IS NOT NULL;
+
+-- NOW I CAN SEE RESULT 
+SELECT *FROM   [Review About Order]
+---------------
+--Delete the view
+DROP VIEW  [Review About Order]
+-- ------------------------------------------- 
+--14. Create at least 1 syntax that contains a sub query
+--First sub query 
+--Find the cheapest product for each category
+SELECT 
+    C.CategoryName, 
+    (SELECT MIN(P.Price) 
+        FROM Product P 
+        INNER JOIN ProductCategory PC ON P.ProductID = PC.ProductID
+        WHERE PC.CategoryID = C.CategoryID AND P.Price IS NOT NULL
+    ) AS Cheapest --  Finds the minimum price for products in the current category.
+FROM Category C
+WHERE EXISTS (
+    SELECT 1 
+    FROM 
+		Product P 
+		JOIN ProductCategory PC ON P.ProductID = PC.ProductID
+    WHERE 
+		PC.CategoryID = C.CategoryID AND 
+		P.Price IS NOT NULL -- I WANT TO Checks if there are products with prices in the current category. 
+		)
+--//////////////////////
+--Second sub query
+ --Räkna antalet ordrar för varje kund in a DES AND OCT on 2023	
+
+SELECT 
+    U.Username AS FullName,
+    (
+        SELECT COUNT(*) 
+        FROM Orders O 
+        WHERE U.UserID = O.UserID 
+        AND YEAR(O.OrderDate) = 2023 
+        AND (MONTH(O.OrderDate) = 10 OR MONTH(O.OrderDate) = 9)
+    ) AS TOTAL
+FROM UserAccount U
+
+-- ---------------------------------------------------
+--15. Create at least 1 Index
+
+--Creating an index on the Username column in the UserAccount table:
+CREATE INDEX 
+UserAccount_Username_IDX
+ON UserAccount (Username);
+
+--Creating an index on the EmailAddress FirstName_LastName_PhoneNumber column in the ContactDetails table:
+CREATE INDEX 
+ContactDetails_FirstName_LastName_PhoneNumber_EmailAddress_IDX
+ON ContactDetails (LastName,FirstName,PhoneNumber,EmailAddress);
+-- I THINK sorting data firSt by last name then first name  and ...
+
+--CREATE  Index on the ProductName and Price columns in the Product table
+
+CREATE INDEX
+Product_ProductName_Price_StockQuantity_IDX
+ON Product(ProductName,Price); -- I THINK sorting data firSt by ProductName AND THRN BY Price
+
+-- Index on the OrderDate and TotalAmount columns in the Orders table
+--SORT FIRST BY OrderDate
+CREATE INDEX 
+Orders_TotalAmount_OrderDate_idx
+ON Orders (OrderDate,TotalAmount);
+
+-- Creating an Index on the Rating and ReviewText columns in the UserReview table:
+
+CREATE INDEX 
+UserReview_Rating_ReviewText_IDX
+ON UserReview (Rating,ReviewText)
+
+

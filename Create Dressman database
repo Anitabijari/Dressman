@@ -1,0 +1,912 @@
+-- Create a new database named "Dressman"
+CREATE DATABASE Dressman 
+GO 
+
+-- Switch to use the newly created "Dressman" database
+USE Dressman
+---------------------
+
+--CREATE TABLE FOR 19 ATTRIBUTE UserAccount, 2. ContactDetails, 3. Addresses, 4. PaymentMethods, 5. Product, 6. Category,
+--7. Quantity, 8. ShoppingCart, 9. Orders, 10. OrderStatus,
+--11. Promotions, 12. Shipment, 13. Return, 14. Wishlist, 15. OrderProduct
+--16. CartProduct  17. UserReviews/Ratings, 18. ProductAttributes/Specifications, 19. Member 
+
+--CREATE TABLE --CREATE TABLE --CREATE TABLE --CREATE TABLE --CREATE TABLE 
+--CREATE TABLE --CREATE TABLE --CREATE TABLE --CREATE TABLE --CREATE TABLE 
+
+-- Create a table called "UserAccount" with columns UserID, Username, and PasswordA
+CREATE TABLE UserAccount
+(
+    UserID INT IDENTITY(1,1) PRIMARY KEY ,
+    Username NVARCHAR(20) NOT NULL,
+    PasswordA NVARCHAR(20) NOT NULL
+);
+
+-- Create a table called "ContactDetails" with columns ContactID, UserID, FirstName, LastName, EmailAddress, and PhoneNumber
+CREATE TABLE ContactDetails (
+    ContactID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT  NOT NULL,
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    EmailAddress NVARCHAR(100) NOT NULL,
+    PhoneNumber NVARCHAR(15) NOT NULL
+);
+
+-- Create a table called "Addresses" with columns AddressID, ContactID, StreetAddress, City, StateA, PostCode, and Country
+CREATE TABLE Addresses (
+    AddressID INT IDENTITY(1,1) PRIMARY KEY ,
+    ContactID INT  NOT NULL,
+    StreetAddress NVARCHAR(100) NOT NULL,
+    City NVARCHAR(50) NOT NULL,
+    StateA NVARCHAR(50),
+    PostCode NVARCHAR(20) NOT NULL,
+    Country NVARCHAR(50) NOT NULL
+);
+
+-- Create a table called "PaymentMethods" with columns PaymentID, OrderID, PaymentType, PaymentDate, and PaymentAmount
+CREATE TABLE PaymentMethods (
+    PaymentID INT PRIMARY KEY IDENTITY(1,1),
+    OrderID INT   NOT NULL,
+    PaymentType NVARCHAR(50) NOT NULL,
+    PaymentDate DATE NOT NULL,
+    PaymentAmount MONEY NOT NULL
+);
+
+-- Create a table called "Category" with columns CategoryID and CategoryName
+CREATE TABLE Category (
+    CategoryID INT PRIMARY KEY IDENTITY(1,1),
+    CategoryName NVARCHAR(50) NOT NULL
+	);
+
+-- Create a table called "ShoppingCart" with columns CartID, UserID, and Quantity
+CREATE TABLE ShoppingCart (
+    CartID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT   NOT NULL,
+    Quantity INT NOT NULL
+);
+
+-- Create a table called "Quantity" with columns QuantityID, ProductID, and AvailableQuantity
+CREATE TABLE Quantity (
+    QuantityID INT PRIMARY KEY IDENTITY(1,1),
+    ProductID INT   NOT NULL,
+    AvailableQuantity INT NOT NULL
+);
+
+-- Create a table called "Product" with columns ProductID, ProductName, DescriptionOfProduct, Price, and StockQuantity
+CREATE TABLE Product (
+    ProductID INT PRIMARY KEY IDENTITY(1,1),
+    ProductName NVARCHAR(100) NOT NULL,
+    DescriptionOfProduct NVARCHAR(100) DEFAULT 'No Description FOR Product' , --when no body answer this part  it is gonig to show ''No Description FOR Product'   in result
+    Price MONEY NOT NULL,
+    StockQuantity INT NOT NULL
+);
+
+-- Create a table called "ProductCategory" with columns ProductCategoryID, ProductID, and CategoryID
+CREATE TABLE ProductCategory (   -- this is  a bridge table  for a many to many relation ship between Category and Product 
+    ProductCategoryID  INT PRIMARY KEY IDENTITY(1,1),
+    ProductID INT   NOT NULL,
+    CategoryID int NOT NULL
+	);
+
+-- Create a table called "Orders" with columns OrderID, UserID, OrderDate, and TotalAmount
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT   NOT NULL,
+    OrderDate DATETIME NOT NULL,
+    TotalAmount MONEY NOT NULL
+);
+
+-- Create a table called "OrderStatus" with columns OrderStatusID, OrderID, and StatusName
+CREATE TABLE OrderStatus (
+    OrderStatusID INT PRIMARY KEY IDENTITY(1,1),
+    OrderID INT   NOT NULL,
+    StatusName NVARCHAR(50) NOT NULL
+);
+
+-- Create a table called "Promotions" with columns PromotionID, ProductID, DiscountPercentage, StartDate, and EndDate
+CREATE TABLE Promotions (
+    PromotionID INT PRIMARY KEY IDENTITY(1,1),
+    ProductID INT  NOT NULL,
+    DiscountPercentage DECIMAL(5,2) NOT NULL,
+    StartDate DATE NOT NULL,
+    EndDate DATE NOT NULL
+);
+
+-- Create a table called "Shipment" with columns ShipmentID, OrderID, ShipmentDate, TrackingNumber, ShipmentStatus, and ShipmentPrice
+CREATE TABLE Shipment (
+    ShipmentID INT PRIMARY KEY IDENTITY(1,1),
+    OrderID INT NOT NULL,
+    ShipmentDate DATETIME NOT NULL,
+    TrackingNumber NVARCHAR(50) NOT NULL,
+    ShipmentStatus NVARCHAR(50) NOT NULL,
+    ShipmentPrice MONEY NOT NULL
+);
+
+-- Create a table called "Return1" (due to "return" being a reserved keyword) with columns ReturnID, OrderID, ReturnDate, ReasonOfReturn, RefundAmount, and ReturnMethod
+CREATE TABLE Return1 (
+    ReturnID INT PRIMARY KEY IDENTITY(1,1),
+    OrderID INT NOT NULL,
+    ReturnDate DATETIME NOT NULL,
+    ReasonOfReturn NVARCHAR(255) DEFAULT 'No Reason Of Return', --when no body answer this part  it is gonig to show No Reason Of Return' in result 
+    RefundAmount MONEY NOT NULL,
+    ReturnMethod NVARCHAR(50) NOT NULL
+);
+
+-- Create a table called "Wishlist" with columns WishlistID, UserID, ProductID, and WishlistName
+CREATE TABLE Wishlist (
+    WishlistID INT PRIMARY KEY IDENTITY(1,1),
+    ContactID INT  NOT NULL,
+    ProductID INT NOT NULL,
+    WishlistName NVARCHAR(50) DEFAULT 'No Wishlist Name '  --when no body answer this part  it is gonig to show 'No Wishlist Name '  in result 
+);
+
+-- Create a table called "OrderProduct" with columns OrderProductID, OrderID, and ProductID
+CREATE TABLE OrderProduct (   -- this is  a bridge table  for a many to many relation ship between Order and Product 
+    OrderProductID INT PRIMARY KEY IDENTITY(1,1),
+    OrderID INT NOT NULL,
+    ProductID INT NOT NULL
+);
+
+-- Create a table called "CartProduct" with columns CartProductID, CartID, and ProductID
+CREATE TABLE CartProduct (  -- this is  a bridge table  for a many to many relation ship between Cart and Product 
+    CartProductID INT PRIMARY KEY IDENTITY(1,1), 
+    CartID INT NOT NULL,
+    ProductID INT NOT NULL
+);
+
+-- Create a table called "UserReview" with columns ReviewID, UserID, OrderID, Rating, and ReviewText
+CREATE TABLE UserReview (
+    ReviewID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT NOT NULL,
+    Rating INT NOT NULL,
+    ReviewText NVARCHAR(255) DEFAULT 'No Review Text '  --when no body answer this part  it is gonig to show 'No Review Text ''  in result 
+);
+
+-- Create a table called "ProductAttribute" with columns AttributeID, ProductID, AttributeName, and AttributeValue
+CREATE TABLE ProductAttribute (
+    AttributeID INT PRIMARY KEY IDENTITY(1,1),
+    ProductID INT NOT NULL,
+    AttributeName NVARCHAR(50) NOT NULL,
+    AttributeValue NVARCHAR(100) NOT NULL
+);
+
+-- Create a table called "MemberA" with columns MemberID, UserID, ContactID, MembershipType, and StartDate
+CREATE TABLE MemberA (
+    MemberID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT NOT NULL,
+    MembershipType NVARCHAR(50),
+    StartDate DATETIME
+);
+
+-- Create a table called "PromotionsMember" with columns MemberPromotionID, MemberID, and PromotionID
+CREATE TABLE PromotionsMember (  -- this is  a bridge table  for a many to may relation ship between  Promotions MemberA
+    MemberPromotionID INT PRIMARY KEY IDENTITY(1,1),
+    MemberID INT NOT NULL ,
+    PromotionID INT NOT NULL
+);
+--ETL --ETL--ETL--ETL--ETL--ETL--ETL--ETL--ETL
+--ETL--ETL--ETL--ETL--ETL--ETL--ETL--ETL
+
+ALTER TABLE MemberA
+ADD PersonalNumber BIGINT NOT NULL ;
+
+ALTER TABLE ContactDetails 
+ADD Birthday DATETIME NOT NULL 
+
+-- NOW RELATIONSHIP   RELATIONSHIP   RELATIONSHIP  RELATIONSHIP  RELATIONSHIP 
+-- NOW RELATIONSHIP   RELATIONSHIP   RELATIONSHIP  RELATIONSHIP  RELATIONSHIP 
+
+--One to many relationship 
+--relationship ContactDetails to Addresses :
+ALTER TABLE Addresses WITH CHECK ADD CONSTRAINT FK_Addresses_ContactDetails
+FOREIGN KEY (ContactID) REFERENCES ContactDetails(ContactID);
+GO
+ALTER TABLE Addresses CHECK CONSTRAINT FK_Addresses_ContactDetails;
+GO
+ --relationship between Order to PaymentMethods
+ALTER TABLE PaymentMethods WITH CHECK ADD CONSTRAINT FK_PaymentMethods_Orders
+FOREIGN KEY (OrderID) REFERENCES Orders(OrderID);
+GO
+ALTER TABLE PaymentMethods CHECK CONSTRAINT FK_PaymentMethods_Orders;
+GO
+--relationship between Promotions to Product 
+ALTER TABLE Promotions WITH CHECK ADD CONSTRAINT FK_Promotions_Product
+FOREIGN KEY (ProductID) REFERENCES Product(ProductID);
+GO
+ALTER TABLE Promotions CHECK CONSTRAINT FK_Promotions_Product;
+GO
+--relationship between PromotionsMember to Member
+ALTER TABLE  PromotionsMember WITH CHECK ADD CONSTRAINT FK_PromotionsMember_MemberA
+FOREIGN KEY ( MemberID) REFERENCES MemberA (MemberID);
+GO
+ALTER TABLE PromotionsMember CHECK CONSTRAINT FK_PromotionsMember_MemberA;
+GO
+--relationship between PromotionsMember to Promotions
+ALTER TABLE PromotionsMember WITH CHECK ADD CONSTRAINT FK_PromotionsMember_Promotions
+FOREIGN KEY (PromotionID) REFERENCES Promotions(PromotionID);
+GO
+ALTER TABLE PromotionsMember CHECK CONSTRAINT FK_PromotionsMember_Promotions;
+GO
+--relationship between Shipment to Orders
+ALTER TABLE Shipment WITH CHECK ADD CONSTRAINT FK_Shipment_Orders
+FOREIGN KEY (OrderID) REFERENCES Orders(OrderID);
+GO
+ALTER TABLE Shipment CHECK CONSTRAINT FK_Shipment_Orders;
+GO
+
+ --relationship between  Product to ProductCategory 
+ALTER TABLE ProductCategory WITH CHECK ADD CONSTRAINT FK_ProductCategory_Product
+FOREIGN KEY (ProductID) REFERENCES Product(ProductID);
+GO
+ALTER TABLE ProductCategory CHECK CONSTRAINT FK_ProductCategory_Product;
+GO
+ --relationship between  Category to ProductCategory 
+ALTER TABLE ProductCategory WITH CHECK ADD CONSTRAINT FK_ProductCategory_Category FOREIGN KEY (CategoryID)
+REFERENCES Category(CategoryID);
+GO
+ALTER TABLE ProductCategory CHECK CONSTRAINT FK_ProductCategory_Category;
+GO
+
+ --relationship between UserAccount to Orders
+ ALTER TABLE Orders WITH CHECK ADD CONSTRAINT FK_Orders_UserAccount
+FOREIGN KEY (UserID) REFERENCES UserAccount(UserID);
+GO
+ALTER TABLE Orders CHECK CONSTRAINT FK_Orders_UserAccount;
+GO
+
+ --relationship between Orders to OrderStatus 
+ ALTER TABLE OrderStatus WITH CHECK ADD CONSTRAINT FK_OrderStatus_Orders
+FOREIGN KEY (OrderID) REFERENCES Orders(OrderID);
+GO
+ALTER TABLE OrderStatus CHECK CONSTRAINT FK_OrderStatus_Orders;
+GO
+
+ --relationship between Product to Quantity 
+ALTER TABLE Quantity WITH CHECK ADD CONSTRAINT FK_Quantity_Product
+FOREIGN KEY (ProductID) REFERENCES Product(ProductID);
+GO
+ALTER TABLE Quantity CHECK CONSTRAINT FK_Quantity_Product;
+GO
+
+--relationship between ShoppingCart to UserAccount 
+ALTER TABLE ShoppingCart WITH CHECK ADD CONSTRAINT FK_ShoppingCart_UserAccount
+FOREIGN KEY (UserID) REFERENCES UserAccount(UserID);
+GO
+ALTER TABLE ShoppingCart CHECK CONSTRAINT FK_ShoppingCart_UserAccount;
+GO
+
+--relationship between OrderProduct to Orders 
+ALTER TABLE OrderProduct WITH CHECK ADD CONSTRAINT FK_OrderProduct_Orders
+FOREIGN KEY (OrderID) REFERENCES Orders(OrderID);
+GO
+ALTER TABLE OrderProduct CHECK CONSTRAINT FK_OrderProduct_Orders;
+GO
+
+--relationship between OrderProduct to Product
+ALTER TABLE OrderProduct WITH CHECK ADD CONSTRAINT FK_OrderProduct_Product
+FOREIGN KEY (ProductID) REFERENCES Product(ProductID);
+GO
+ALTER TABLE OrderProduct CHECK CONSTRAINT FK_OrderProduct_Product;
+GO
+
+--relationship between CartProduct to ShoppingCart 
+ALTER TABLE CartProduct WITH CHECK ADD CONSTRAINT FK_CartProduct_ShoppingCart
+FOREIGN KEY (CartID) REFERENCES ShoppingCart(CartID);
+GO
+ALTER TABLE CartProduct CHECK CONSTRAINT FK_CartProduct_ShoppingCart;
+GO
+
+--relationship between CartProduct to Product
+ALTER TABLE CartProduct WITH CHECK ADD CONSTRAINT FK_CartProduct_Product
+FOREIGN KEY (ProductID) REFERENCES Product(ProductID);
+GO
+ALTER TABLE CartProduct CHECK CONSTRAINT FK_CartProduct_Product;
+GO
+
+--relationship between UserReview to UserAccount 
+ALTER TABLE UserReview WITH CHECK ADD CONSTRAINT FK_UserReview_UserAccount
+FOREIGN KEY (UserID) REFERENCES UserAccount(UserID);
+GO
+ALTER TABLE UserReview CHECK CONSTRAINT FK_UserReview_UserAccount;
+GO
+
+--relationship between  ProductAttribute to Product 
+ALTER TABLE ProductAttribute  WITH CHECK ADD CONSTRAINT FK_ProductAttribute_Product
+FOREIGN KEY (ProductID) REFERENCES Product(ProductID);
+GO
+ALTER TABLE ProductAttribute  CHECK CONSTRAINT FK_ProductAttribute_Product;
+GO
+
+--relationship between Wishlist to Product 
+ALTER TABLE Wishlist WITH CHECK ADD CONSTRAINT FK_Wishlist_Product
+FOREIGN KEY (ProductID) REFERENCES Product(ProductID);
+GO
+ALTER TABLE Wishlist CHECK CONSTRAINT FK_Wishlist_Product;
+GO
+--relationship between Wishlist to[ContactDetails]
+ALTER TABLE Wishlist WITH CHECK ADD CONSTRAINT FK_Wishlist_ContactDetails
+FOREIGN KEY (ContactID) REFERENCES ContactDetails([ContactID]);
+GO
+ALTER TABLE Wishlist CHECK CONSTRAINT FK_Wishlist_ContactDetails;
+GO
+--relationship between Return1 to Orders
+ ALTER TABLE Return1 WITH CHECK ADD CONSTRAINT FK_Return1_Orders
+FOREIGN KEY (OrderID) REFERENCES Orders(OrderID);
+GO
+ALTER TABLE Return1 CHECK CONSTRAINT FK_Return1_Orders;
+GO
+
+--one to one relationship 
+
+ --relationship between UserAccount and ContactDetails for integrity and safety
+
+ALTER TABLE ContactDetails ADD CONSTRAINT FK_ContactDetails_UserAccount
+FOREIGN KEY (UserID) REFERENCES UserAccount(UserID);
+
+ALTER TABLE ContactDetails ADD CONSTRAINT UQ_UserID UNIQUE(UserID);
+
+--relationship between UserAccount and Member:
+ALTER TABLE MemberA ADD CONSTRAINT FK_MemberA_UserAccount
+FOREIGN KEY (UserID) REFERENCES UserAccount(UserID);
+
+ALTER TABLE MemberA ADD CONSTRAINT UQ1_UserID UNIQUE(UserID);
+
+
+
+
+--INSERT DATA  --INSERT DATA  --INSERT DATA  --INSERT DATA  --INSERT DATA  
+--INSERT DATA  --INSERT DATA  --INSERT DATA  --INSERT DATA  --INSERT DATA 
+
+-- Insert data for the UserAccount table
+INSERT INTO UserAccount (Username, PasswordA)
+VALUES 
+    ('OliviaSmith', '0l1v14Sm1th$'),
+    ('LiamJohnson', 'L14mJ0hn$on'),
+    ('EmmaBrown', 'Emm@Br0wn2023'),
+    ('NoahDavis', 'N04hD@v1$2023'),
+    ('AvaWilson', 'Av@W1ls0n!'),
+    ('SophiaTaylor', 'S0ph14T@yl0r'),
+    ('EthanEvans', '3th@n3v@ns'),
+    ('IsabellaLee', '1s@b3ll@L33#'),
+    ('MiaMartinez', 'M14M@rt1n3z!'),
+    ('LucasHarris', 'L0v3Luc@sh@rr1$'),
+	 ('JohnDoe', 'J0hnD03!'),
+    ('JaneDoe', 'Jan3D03@'),
+    ('DavidSmith', 'Dav1dSm1th!'),
+    ('SarahJohnson', 'S@rahJ0hn$on'),
+    ('MichaelBrown', 'M1ch@elBr0wn'),
+    ('AnnaWilliams', 'Ann@W1ll1ams'),
+    ('JamesDavis', 'Jam3sDav1$'),
+    ('EmilyTaylor', 'Em1lyTaYl0r!'),
+    ('DanielLee', 'Dan13lL33#'),
+    ('JessicaEvans', 'J3ss1ca3v@ns');
+-- Insert data for the ContactDetails  table
+INSERT INTO ContactDetails (UserID, FirstName, LastName, EmailAddress, PhoneNumber,Birthday)
+VALUES 
+    (1, 'Olivia', 'Smith', 'olivia.smith@yahoo.com', '+46701234567','1966-02-21'),
+    (2, 'Liam', 'Johnson', 'liam.johnson@gmail.com', '+46702345678',' 1987-06-21'),
+    (3, 'Emma', 'Brown', 'emma.brown@hotmail.com', '+46703456789','1972-07-04'),
+    (4, 'Noah', 'Davis', 'noah.davis@yahoo.com', '+46704567890','1988-04-15'),
+    (5, 'Ava', 'Wilson', 'ava.wilson@gmail.com', '+46705678901',' 1992-09-28'),
+    (6, 'Sophia', 'Taylor', 'sophia.taylor@hotmail.com', '+46706789012','1960-11-22'),
+    (7, 'Ethan', 'Evans', 'ethan.evans@yahoo.com', '+46707890123','1979-12-03'),
+    (8, 'Isabella', 'Lee', 'isabella.lee@gmail.com', '+46708901234',' 1983-05-13'),
+    (9, 'Mia', 'Martinez', 'mia.martinez@hotmail.com', '+46709012345','1976-10-17'),
+    (10, 'Lucas', 'Harris', 'lucas.harris@yahoo.com', '+46700123456','1986-03-09'),
+    (11, 'John', 'Doe', 'john.doe@yahoo.com', '+46701112233','1995-08-20'),
+    (12, 'Jane', 'Doe', 'jane.doe@gmail.com', '+46703334444','1953-07-01'),
+    (13, 'David', 'Smith', 'david.smith@hotmail.com', '+46705556677','1969-02-23'),
+    (14, 'Sarah', 'Johnson', 'sarah.johnson@yahoo.com', '+46707778899','1971-08-26'),
+    (15, 'Michael', 'Brown', 'michael.brown@gmail.com', '+46709991122','1957-07-07'),
+    (16, 'Anna', 'Williams', 'anna.williams@hotmail.com', '+46701112233',' 2003-01-22'),
+    (17, 'James', 'Davis', 'james.davis@yahoo.com', '+46703334444',' 1995-11-12'),
+    (18, 'Emily', 'Taylor', 'emily.taylor@gmail.com', '+46705556677','1957-12-14'),
+    (19, 'Daniel', 'Lee', 'daniel.lee@hotmail.com', '+46707778899','1969-12-31'),
+    (20, 'Jessica', 'Evans', 'jessica.evans@yahoo.com', '+46709991122','1982-02-01');
+
+-- Insert data for the Addresses  table
+INSERT INTO Addresses (ContactID, StreetAddress, City, StateA, PostCode, Country)
+VALUES
+    (1, '123 Main Street', 'Stockholm', 'Stockholm', '12345', 'Sweden'),
+    (2, '456 Elm Road', 'London', NULL, 'SW1A 1AA', 'United Kingdom'),
+    (3, '789 Oak Boulevard', 'Malmo', 'Skane', '23456', 'Sweden'),
+    (4, '101 Pine Drive', 'Uppsala', 'Uppsala', '78901', 'Sweden'),
+    (5, '202 Maple Court', 'Linkoping', 'Ostergotland', '34567', 'Sweden'),
+    (6, '303 Birch Lane', 'Vasteras', 'Vastmanland', '45678', 'Sweden'),
+    (7, '404 Cedar Road', 'Orebro', 'Orebro', '56789', 'Sweden'),
+    (8, '505 Spruce Place', 'Helsingborg', 'Skane', '67890', 'Sweden'),
+    (9, '606 Fir Circle', 'Norrkoping', 'Ostergotland', '78901', 'Sweden'),
+    (10, '707 Redwood Street', 'Lund', 'Skane', '89012', 'Sweden'),
+    (11, '808 Sequoia Avenue', 'Umea', 'Vasterbotten', '90123', 'Sweden'),
+    (12, '909 Walnut Court', 'Gavle', 'Gavleborg', '01234', 'Sweden'),
+    (13, '123 Oak Street', 'Boras', 'Vastra Gotaland', '12345', 'Sweden'),
+    (14, '456 Maple Avenue', 'Sodertalje', 'Stockholm', '23456', 'Sweden'),
+    (15, '789 Pine Boulevard', 'Karlstad', 'Varmland', '34567', 'Sweden'),
+    (16, '101 Birch Drive', '', 'Kronoberg', '45678', 'Sweden'),
+    (17, '202 Cedar Court', 'Halmstad', 'Halland', '56789', 'Sweden'),
+    (18, '789 Maple Avenue', 'Paris', NULL, '75001', 'France'),
+    (19, '404 Fir Place', 'Trollhattan', 'Vastra Gotaland', '78901', 'Sweden'),
+    (20, '123 Oak Street', 'Los Angeles', 'CA', '90001', 'USA');
+
+-- Insert data for the Category  table
+INSERT INTO Category (CategoryName)
+VALUES 
+    ('Men''s Shirts'),
+    ('Women''s Dresses'),
+    ('Kids'' T-Shirts'),
+    ('Men''s Jeans'),
+    ('Women''s Skirts'),
+    ('Kids'' Sweaters'),
+    ('Men''s Jackets'),
+    ('Women''s Blazers'),
+    ('Kids'' Dresses'),
+    ('Men''s Ties'),
+    ('Women''s Blouses'),
+    ('Men''s Suits'),
+    ('Kids'' Jackets'),
+    ('Women''s Outerwear'),
+    ('Men''s Sweaters'),
+    ('Kids'' Pants'),
+    ('Women''s Activewear'),
+    ('Men''s Activewear'),
+    ('Kids'' Sleepwear'),
+    ('Women''s Lingerie');
+
+-- Insert data for the  Product  table
+INSERT INTO Product (ProductName , DescriptionOfProduct, Price, StockQuantity)
+VALUES 
+    ('Classic White Shirt',  'A classic white shirt for men', 499.99, 100),  -- Men's Shirts
+    ('Striped Dress Shirt',  'A striped dress shirt in blue and white', 279.99, 80),  -- Men's Shirts
+    ('Floral Summer Dress',  'A light floral summer dress',519.99 , 120),  -- Women's Dresses
+    ('Black Evening Gown',  'An elegant black evening gown', 229.99, 50),  -- Women's Dresses
+    ('Superhero Graphic Tee',  'A t-shirt with a superhero print', 219.99, 150),  -- Kids' T-Shirts
+    ('Pink Unicorn Tee', 'A cute pink tee with a unicorn', 24.99, 200),  -- Kids' T-Shirts
+    ('YELOW Unicorn Tee', 'A cute pink tee with a unicorn', 85.99, 200),  -- Kids' T-Shirts
+    ('Slim Fit Jeans',  'Classic slim fit jeans for men', 69.99, 90),  -- Men's Jeans
+    ('Denim Skirt',  'A denim skirt for women', 39.99, 70),  -- Women's Skirts
+    ('Cozy Knit Sweater',  'Warm knit sweater for kids', 49.99, 120),  -- Kids' Sweaters
+    ('Leather Jacket',  'Stylish leather jacket for men', 159.99, 60),  -- Men's Jackets
+    ('Blazer with Pockets', 'A sophisticated blazer for women', 89.99, 80),  -- Women's Blazers
+	('Blazer with Pockets', 'A sophisticated blazer for women', 189.99, 80),  -- Women's Blazers
+    ('Dinosaur Print Dress',  'Adorable dinosaur print dress for kids', 34.99, 100),  -- Kids' Dresses
+    ('Silk Tie',  'Elegant silk tie for men', 24.99, 200),  -- Men's Ties
+    ('Striped Polo Shirt',  'Classic striped polo shirt for men', 44.99, 120),  -- Men's Shirts
+    ('Floral Maxi Dress',  'Long floral dress for women', 99.99, 60),  -- Women's Dresses
+    ('Dino Print Tee', 'Fun dinosaur print tee for kids', 19.99, 180),  -- Kids' T-Shirts
+    ('High-Waisted Jeans', 'Trendy high-waisted jeans for women', 769.99, 90),  -- Women's Jeans
+	('High-Waisted Jeans', 'Trendy high-waisted jeans for women', 469.99, 90),  -- Women's Jeans
+    ('Varsity Jacket',  'Cool varsity jacket for kids', 564.99, 110),  -- Kids' Jackets
+    ('Linen Blouse', 'Lightweight linen blouse for women', 49.99, 70),  -- Women's Tops
+    ('Striped Knit Sweater',  'Cozy striped knit sweater for kids', 399.99, 130);  -- Kids' Sweaters
+-- Insert data for the Orders  table
+INSERT INTO Orders (UserID, OrderDate, TotalAmount)
+VALUES 
+    (1, '2023-09-10 10:30:00', 179.97),
+    (2, '2023-09-11 11:45:00', 229.97),
+    (3, '2023-09-12 12:15:00', 169.97),
+    (4, '2023-09-13 14:20:00', 119.97),
+    (5, '2023-09-14 15:30:00', 139.97),
+    (6, '2023-09-15 16:45:00', 209.97),
+    (7, '2023-09-16 17:15:00', 99.98),
+    (8, '2023-09-17 18:30:00', 159.98),
+    (9, '2023-09-18 19:00:00', 219.97),
+    (10, '2023-09-19 20:30:00', 169.97),
+    (11, '2023-10-10 10:30:00', 169.97),
+    (12, '2023-10-11 11:45:00', 259.97),
+    (13, '2023-10-12 12:15:00', 129.97),
+    (14, '2023-10-13 14:20:00', 149.97),
+    (15, '2023-10-14 15:30:00', 179.97),
+    (16, '2023-10-15 16:45:00', 219.97),
+    (17, '2023-10-16 17:15:00', 189.98),
+    (18, '2023-10-17 18:30:00', 149.98),
+    (19, '2023-10-18 19:00:00', 179.97),
+    (20, '2023-10-19 20:30:00', 189.97),
+    (1, '2023-10-20 10:30:00', 199.97),
+    (2, '2023-10-21 11:45:00', 209.97),
+    (3, '2023-10-22 12:15:00', 179.97),
+    (4, '2023-10-23 14:20:00', 169.97),
+    (5, '2023-10-24 15:30:00', 139.97),
+    (6, '2023-10-25 16:45:00', 219.97),
+    (7, '2023-10-26 17:15:00', 199.98),
+    (8, '2023-10-27 18:30:00', 169.98),
+    (9, '2023-10-28 19:00:00', 189.97),
+    (10, '2023-10-29 20:30:00', 199.97),
+    (11, '2023-10-30 10:30:00', 179.97),
+    (12, '2023-10-31 11:45:00', 209.97),
+    (13, '2023-11-01 12:15:00', 169.97),
+    (14, '2023-11-02 14:20:00', 159.97),
+    (15, '2023-11-03 15:30:00', 149.97),
+    (16, '2023-11-04 16:45:00', 199.97),
+    (17, '2023-11-05 17:15:00', 189.98),
+    (18, '2023-11-06 18:30:00', 149.98),
+    (19, '2023-11-07 19:00:00', 179.97),
+    (20, '2023-11-08 20:30:00', 189.97),
+    (1, '2023-11-09 10:30:00', 199.97),
+    (2, '2023-11-10 11:45:00', 209.97),
+    (3, '2023-11-11 12:15:00', 179.97),
+    (4, '2023-11-12 14:20:00', 169.97),
+    (5, '2023-11-13 15:30:00', 139.97),
+    (6, '2023-11-14 16:45:00', 219.97),
+    (7, '2023-11-15 17:15:00', 199.98),
+    (8, '2023-11-16 18:30:00', 169.98),
+    (9, '2023-11-17 19:00:00', 189.97),
+    (10, '2023-11-18 20:30:00', 199.97),
+    (11, '2023-11-19 10:30:00', 179.97),
+    (12, '2023-11-20 11:45:00', 209.97),
+    (13, '2023-11-21 12:15:00', 169.97),
+    (14, '2023-11-22 14:20:00', 159.97),
+    (15, '2023-11-23 15:30:00', 149.97),
+    (16, '2023-11-24 16:45:00', 199.97),
+    (17, '2023-11-25 17:15:00', 189.98),
+    (18, '2023-11-26 18:30:00', 149.98),
+    (19, '2023-11-27 19:00:00', 179.97),
+    (20, '2023-11-28 20:30:00', 189.97),
+    (1, '2023-11-29 10:30:00', 199.97),
+    (2, '2023-11-30 11:45:00', 209.97),
+    (3, '2023-12-01 12:15:00', 179.97),
+    (4, '2023-12-02 14:20:00', 169.97),
+    (5, '2023-12-03 15:30:00', 139.97);
+
+
+-- Insert data for the PaymentMethods  table
+INSERT INTO PaymentMethods (OrderID, PaymentType, PaymentDate, PaymentAmount)
+VALUES 
+    (1, 'Credit Card', '2023-09-10', 179.97),
+    (2, 'PayPal', '2023-09-11', 229.97),
+    (3, 'Credit Card', '2023-09-12', 169.97),
+    (4, 'PayPal', '2023-09-13', 119.97),
+    (5, 'Credit Card', '2023-09-14', 139.97),
+    (6, 'PayPal', '2023-09-15', 209.97),
+    (7, 'Credit Card', '2023-09-16', 99.98),
+    (8, 'PayPal', '2023-09-17', 159.98),
+    (9, 'Credit Card', '2023-09-18', 219.97),
+    (10, 'PayPal', '2023-09-19', 169.97),
+    (11, 'Credit Card', '2023-10-10', 169.97),
+    (12, 'PayPal', '2023-10-11', 259.97),
+    (13, 'Credit Card', '2023-10-12', 129.97),
+    (14, 'PayPal', '2023-10-13', 149.97),
+    (15, 'Credit Card', '2023-10-14', 179.97),
+    (16, 'PayPal', '2023-10-15', 219.97),
+    (17, 'Credit Card', '2023-10-16', 189.98),
+    (18, 'PayPal', '2023-10-17', 149.98),
+    (19, 'Credit Card', '2023-10-18', 179.97),
+    (20, 'PayPal', '2023-10-19', 189.97);
+
+-- Insert data for the ShoppingCart   table
+INSERT INTO ShoppingCart (UserID, Quantity)
+VALUES 
+    (1,  2),
+    (1,  1),
+    (2,  3),
+    (3,  2),
+    (4,  1),
+    (5,  2),
+    (6,  3),
+    (7, 2),
+    (8, 1),
+    (9, 2),
+    (10, 3),
+    (11, 1),
+    (12, 2),
+    (13,2),
+    (14,1),
+    (15,3),
+    (16,2),
+    (17,1),
+    (18,2),
+    (19,3),
+    (20,1);
+
+-- Insert data for the Quantity  table
+INSERT INTO Quantity (ProductID, AvailableQuantity)
+VALUES 
+    (1, 50),
+    (2, 70),
+    (3, 90),
+    (4, 60),
+    (5, 80),
+    (6, 100),
+    (7, 120),
+    (8, 150),
+    (9, 70),
+    (10, 60),
+    (11, 80),
+    (12, 90),
+    (13, 100),
+    (14, 110),
+    (15, 120),
+    (16, 130),
+    (17, 140),
+    (18, 150),
+    (19, 160),
+    (20, 170);
+-- Insert data for the ProductCategory  table
+INSERT INTO ProductCategory (ProductID, CategoryID)
+VALUES 
+    (1, 1), -- Classic White Shirt belongs to Men's Shirts
+    (2, 1), -- Striped Dress Shirt belongs to Men's Shirts
+    (3, 2), -- Floral Summer Dress belongs to Women's Dresses
+    (4, 2), -- Black Evening Gown belongs to Women's Dresses
+    (5, 3), -- Superhero Graphic Tee belongs to Kids' T-Shirts
+    (6, 3), -- Pink Unicorn Tee belongs to Kids' T-Shirts
+    (7, 4), -- Slim Fit Jeans belongs to Men's Jeans
+    (8, 5), -- Denim Skirt belongs to Women's Skirts
+    (9, 6), -- Cozy Knit Sweater belongs to Kids' Sweaters
+    (10, 7), -- Leather Jacket belongs to Men's Jackets
+    (11, 8), -- Blazer with Pockets belongs to Women's Blazers
+    (12, 9), -- Dinosaur Print Dress belongs to Kids' Dresses
+    (13, 10), -- Silk Tie belongs to Men's Ties
+    (14, 1), -- Striped Polo Shirt belongs to Men's Shirts
+    (15, 2), -- Floral Maxi Dress belongs to Women's Dresses
+    (16, 3), -- Dino Print Tee belongs to Kids' T-Shirts
+    (17, 4), -- High-Waisted Jeans belongs to Women's Jeans
+    (18, 7), -- Varsity Jacket belongs to Kids' Jackets
+    (19, 8), -- Linen Blouse belongs to Women's Tops
+    (20, 6); -- Striped Knit Sweater belongs to Kids' Sweaters
+
+
+-- Insert data for the OrderStatus table
+INSERT INTO OrderStatus (OrderID, StatusName)
+VALUES 
+    (1, 'Pending'),  -- Order 1
+    (2, 'Shipped'),  -- Order 2
+    (3, 'Delivered'),  -- Order 3
+    (4, 'Pending'),  -- Order 4
+    (5, 'Shipped'),  -- Order 5
+    (6, 'Delivered'),  -- Order 6
+    (7, 'Pending'),  -- Order 7
+    (8, 'Shipped'),  -- Order 8
+    (9, 'Delivered'),  -- Order 9
+    (10, 'Pending'),  -- Order 10
+    (11, 'Shipped'),  -- Order 11
+    (12, 'Delivered'),  -- Order 12
+    (13, 'Pending'),  -- Order 13
+    (14, 'Shipped'),  -- Order 14
+    (15, 'Delivered'),  -- Order 15
+    (16, 'Pending'),  -- Order 16
+    (17, 'Shipped'),  -- Order 17
+    (18, 'Delivered'),  -- Order 18
+    (19, 'Pending'),  -- Order 19
+    (20, 'Shipped');  -- Order 20
+-- Insert data for the Promotions table
+INSERT INTO Promotions (ProductID, DiscountPercentage, StartDate, EndDate)
+VALUES 
+    (1, 10.00, '2023-10-20', '2023-11-10'),  -- Product 1
+    (2, 15.00, '2023-10-25', '2023-11-15'),  -- Product 2
+    (3, 20.00, '2023-10-22', '2023-11-05'),  -- Product 3
+    (4, 25.00, '2023-10-28', '2023-11-20'),  -- Product 4
+    (5, 30.00, '2023-10-21', '2023-11-12'),  -- Product 5
+    (6, 35.00, '2023-10-26', '2023-11-16'),  -- Product 6
+    (7, 40.00, '2023-10-23', '2023-11-06'),  -- Product 7
+    (8, 45.00, '2023-10-29', '2023-11-21'),  -- Product 8
+    (9, 50.00, '2023-10-24', '2023-11-13'),  -- Product 9
+    (10, 55.00, '2023-10-27', '2023-11-17'),  -- Product 10
+    (11, 60.00, '2023-10-30', '2023-11-22'),  -- Product 11
+    (12, 65.00, '2023-10-31', '2023-11-23'),  -- Product 12
+    (13, 70.00, '2023-11-01', '2023-11-24'),  -- Product 13
+    (14, 75.00, '2023-11-02', '2023-11-25'),  -- Product 14
+    (15, 80.00, '2023-11-03', '2023-11-26'),  -- Product 15
+    (16, 85.00, '2023-11-04', '2023-11-27'),  -- Product 16
+    (17, 90.00, '2023-11-05', '2023-11-28'),  -- Product 17
+    (18, 95.00, '2023-11-06', '2023-11-29'),  -- Product 18
+    (19, 100.00, '2023-11-07', '2023-11-30'),  -- Product 19
+    (20, 60.00, '2023-11-08', '2023-12-01');  -- Product 20
+
+	-- Insert data for returns 
+INSERT INTO Return1 (OrderID, ReturnDate, ReasonOfReturn, RefundAmount, ReturnMethod)
+VALUES 
+    (1, '2022-01-15 10:30:00', 'Wrong size', 199.99, 'Credit Card'),  -- Return for Order 1
+    (2, '2022-02-20 14:45:00', 'Defective product', 299.99, 'PayPal'),  -- Return for Order 2
+    (3, '2022-03-25 16:15:00', 'Changed my mind', 399.99, 'Credit Card'),  -- Return for Order 3
+    (4, '2022-04-30 09:20:00', 'Received wrong item', 499.99, 'Store Credit'),  -- Return for Order 4
+    (5, '2022-05-10 11:10:00', 'Not as described', 599.99, 'Credit Card'),  -- Return for Order 5
+    (6, '2022-06-15 13:05:00', 'Size too small', 399.99, 'PayPal'),  -- Return for Order 6
+    (7, '2022-07-20 14:55:00', 'Damaged during shipping', 499.99, 'Credit Card'),  -- Return for Order 7
+    (8, '2022-08-25 16:30:00', 'Defective product', 599.99, 'Store Credit'),  -- Return for Order 8
+    (9, '2022-09-30 10:40:00', 'Wrong color', 399.99, 'Credit Card'),  -- Return for Order 9
+    (10, '2022-10-15 12:25:00', 'Changed my mind', 499.99, 'PayPal'),  -- Return for Order 10
+    (11, '2022-11-20 14:10:00', 'Wrong size', 599.99, 'Store Credit'),  -- Return for Order 11
+    (12, '2022-12-25 15:50:00', 'Not as described', 699.99, 'Credit Card'),  -- Return for Order 12
+    (13, '2023-01-01 10:05:00', 'Defective product', 499.99, 'PayPal'),  -- Return for Order 13
+    (14, '2023-02-10 12:15:00', 'Changed my mind', 399.99, 'Credit Card'),  -- Return for Order 14
+    (15, '2023-03-15 13:45:00', 'Received wrong item', 299.99, 'Store Credit'),  -- Return for Order 15
+    (16, '2023-04-20 16:00:00', 'Size too small', 599.99, 'Credit Card'),  -- Return for Order 16
+    (17, '2023-05-25 10:30:00', 'Damaged during shipping', 399.99, 'PayPal'),  -- Return for Order 17
+    (18, '2023-06-30 14:20:00', 'Defective product', 499.99, 'Credit Card'),  -- Return for Order 18
+    (19, '2023-07-10 12:40:00', 'Wrong color', 599.99, 'Store Credit'),  -- Return for Order 19
+    (20, '2023-08-15 15:05:00', 'Not as described', 399.99, 'Credit Card');  -- Return for Order 20
+	-- Insert data for the Wishlist table
+INSERT INTO Wishlist (ContactID, ProductID, WishlistName)
+VALUES 
+    (1, 1, 'Favorites'),  -- User 1 adds Product 1 to Favorites
+    (1, 5, 'Gift Ideas'),  -- User 1 adds Product 5 to Gift Ideas
+    (2, 3, 'Summer Wardrobe'),  -- User 2 adds Product 3 to Summer Wardrobe
+    (2, 7, 'Sports Gear'),  -- User 2 adds Product 7 to Sports Gear
+    (3, 2, 'Workout Essentials'),  -- User 3 adds Product 2 to Workout Essentials
+    (3, 8, 'Accessories Wishlist'),  -- User 3 adds Product 8 to Accessories Wishlist
+    (4, 4, 'Casual Wear'),  -- User 4 adds Product 4 to Casual Wear
+    (4, 6, 'Spring Collection'),  -- User 4 adds Product 6 to Spring Collection
+    (5, 9, 'Outdoor Gear'),  -- User 5 adds Product 9 to Outdoor Gear
+    (5, 11, 'Travel Essentials'),  -- User 5 adds Product 11 to Travel Essentials
+    (6, 10, 'Formal Attire'),  -- User 6 adds Product 10 to Formal Attire
+    (6, 12, 'Special Occasions'),  -- User 6 adds Product 12 to Special Occasions
+    (7, 13, 'Back to School'),  -- User 7 adds Product 13 to Back to School
+    (7, 16, 'Cozy Loungewear'),  -- User 7 adds Product 16 to Cozy Loungewear
+    (8, 15, 'Winter Wardrobe'),  -- User 8 adds Product 15 to Winter Wardrobe
+    (8, 14, 'Holiday Season'),  -- User 8 adds Product 14 to Holiday Season
+    (9, 17, 'Fitness Goals'),  -- User 9 adds Product 17 to Fitness Goals
+    (9, 19, 'Wellness Essentials'),  -- User 9 adds Product 19 to Wellness Essentials
+    (10, 18, 'Gym Must-Haves'),  -- User 10 adds Product 18 to Gym Must-Haves
+    (10, 20, 'Health & Beauty Wishlist');  -- User 10 adds Product 20 to Health & Beauty Wishlist
+
+	-- Insert data for the UserReview table
+INSERT INTO UserReview (UserID, Rating, ReviewText)
+VALUES 
+    (1,  1, 'Very angry and disappointed'),  -- User 1 reviews Product 1
+    (2, 2, 'Quite unhappy with this product'),  -- User 2 reviews Product 3
+    (3, 3, 'It''s okay, could be better'),  -- User 3 reviews Product 2
+    (4, 4, 'Pretty good, but has room for improvement'),  -- User 4 reviews Product 4
+    (5, 5, 'Absolutely perfect! Couldn''t be happier.'),  -- User 5 reviews Product 9
+    (6,  1, 'This is terrible, never buying again'),  -- User 6 reviews Product 10
+    (7,  2, 'Disappointed with the quality'),  -- User 7 reviews Product 13
+    (8,  3, 'It''s not bad, but not great either'),  -- User 8 reviews Product 15
+    (9, 4, 'I really like it, but there are some flaws'),  -- User 9 reviews Product 17
+    (10, 5, 'Amazing product! Love it!'),  -- User 10 reviews Product 18
+    (11, 1, 'Extremely unsatisfied with my purchase'),  -- User 11 reviews Product 7
+    (12, 2, 'Could have been better'),  -- User 12 reviews Product 8
+    (13,  3, 'Fairly satisfied, but not thrilled'),  -- User 13 reviews Product 12
+    (14,  4, 'Great product, with minor room for improvement'),  -- User 14 reviews Product 14
+    (15,  5, 'Absolutely fantastic!'),  -- User 15 reviews Product 19
+    (16, 1, 'Worst product I''ve ever bought'),  -- User 16 reviews Product 20
+    (17,  2, 'Not meeting my expectations'),  -- User 17 reviews Product 6
+    (18,  3, 'Satisfactory, but not outstanding'),  -- User 18 reviews Product 11
+    (19,  4, 'Impressive, but with a few drawbacks'),  -- User 19 reviews Product 16
+    (20,  5, 'Absolutely love it! Best purchase ever!');  -- User 20 reviews Product 5
+-- Insert data for the MemberA table
+INSERT INTO MemberA (UserID,MembershipType,PersonalNumber,StartDate)
+VALUES 
+    (3,   'Bronze','197207046738', '2023-10-16T12:00:00'),
+    (6, 'Bronze','196011223557', '2023-10-16T15:00:00'),
+    (8,  'Silver', '198305134566','2023-10-16T17:00:00'),
+    (9,  'Bronze', '197610174433','2023-10-16T18:00:00'),
+    (11, 'Silver','199508201216','2023-10-16T20:00:00'),
+    (12,  'Bronze', '195307013421','2023-10-16T21:00:00'),
+    (13, 'Gold','196902234225', '2023-10-16T22:00:00'),
+    (15, 'Gold','195707071533', '2023-10-16T00:00:00'),
+    (16, 'Silver','200301221420', '2023-10-16T01:00:00'),
+    (17,  'Bronze','199511127121', '2023-10-16T02:00:00'),
+    (18, 'Gold', '195712141625','2023-10-16T03:00:00'),
+    (19,   'Silver','196912312345', '2023-10-16T04:00:00'),
+    (20, 'Bronze','198202012236', '2023-10-16T05:00:00');
+
+	
+
+	-- Insert data for the ProductAttribute table
+INSERT INTO ProductAttribute (ProductID, AttributeName, AttributeValue)
+VALUES 
+    (1, 'Size', 'M'),
+    (1, 'Color', 'White'),
+    (2, 'Size', 'L'),
+    (2, 'Color', 'Blue'),
+    (3, 'Size', 'S'),
+    (3, 'Color', 'Red'),
+    (4, 'Size', 'M'),
+    (4, 'Color', 'Black'),
+    (5, 'Size', 'S'),
+    (5, 'Color', 'Pink'),
+    (6, 'Size', 'M'),
+    (6, 'Color', 'Gray'),
+    (7, 'Size', 'L'),
+    (7, 'Color', 'Brown'),
+    (8, 'Size', 'S'),
+    (8, 'Color', 'Green'),
+    (9, 'Size', 'M'),
+    (9, 'Color', 'Blue'),
+    (10, 'Size', 'L'),
+    (10, 'Color', 'Red');
+	-- Insert data for theCartProduct table
+INSERT INTO CartProduct (CartID, ProductID)
+VALUES 
+    (1, 1),
+    (2, 2),
+    (3, 3),
+    (4, 4),
+    (5, 5),
+    (6, 6),
+    (7, 7),
+    (8, 8),
+    (9, 9),
+    (10, 10),
+    (11, 11),
+    (12, 12),
+    (13, 13),
+    (14, 14),
+    (15, 15),
+    (16, 16),
+    (17, 17),
+    (18, 18),
+    (19, 19),
+    (20, 20);
+
+-- Insert data for the OrderProduct  table
+INSERT INTO OrderProduct (OrderID, ProductID)
+VALUES 
+    (1, 1),
+    (2, 2),
+    (3, 3),
+    (4, 4),
+    (5, 5),
+    (6, 6),
+    (7, 7),
+    (8, 8),
+    (9, 9),
+    (10, 10),
+    (11, 11),
+    (12, 12),
+    (13, 13),
+    (14, 14),
+    (15, 15),
+    (16, 16),
+    (17, 17),
+    (18, 18),
+    (19, 19),
+    (20, 20);
+
+-- Insert data for the Shipment   table
+	INSERT INTO Shipment (OrderID, ShipmentDate, TrackingNumber, ShipmentStatus, ShipmentPrice)
+VALUES 
+    (1, '2023-10-16T12:00:00', 'TN123456789', 'Shipped', 10.99),
+    (2, '2023-10-16T13:00:00', 'TN234567890', 'Shipped', 12.99),
+    (3, '2023-10-16T14:00:00', 'TN345678901', 'Shipped', 11.99),
+    (4, '2023-10-16T15:00:00', 'TN456789012', 'Shipped', 13.99),
+    (5, '2023-10-16T16:00:00', 'TN567890123', 'Shipped', 14.99),
+    (6, '2023-10-16T17:00:00', 'TN678901234', 'Shipped', 15.99),
+    (7, '2023-10-16T18:00:00', 'TN789012345', 'Shipped', 16.99),
+    (8, '2023-10-16T19:00:00', 'TN890123456', 'Shipped', 17.99),
+    (9, '2023-10-16T20:00:00', 'TN901234567', 'Shipped', 18.99),
+    (10, '2023-10-16T21:00:00', 'TN012345678', 'Shipped', 19.99),
+    (11, '2023-10-16T22:00:00', 'TN123456789', 'Shipped', 20.99),
+    (12, '2023-10-16T23:00:00', 'TN234567890', 'Shipped', 21.99),
+    (13, '2023-10-17T00:00:00', 'TN345678901', 'Shipped', 22.99),
+    (14, '2023-10-17T01:00:00', 'TN456789012', 'Shipped', 23.99),
+    (15, '2023-10-17T02:00:00', 'TN567890123', 'Shipped', 24.99),
+    (16, '2023-10-17T03:00:00', 'TN678901234', 'Shipped', 25.99),
+    (17, '2023-10-17T04:00:00', 'TN789012345', 'Shipped', 26.99),
+    (18, '2023-10-17T05:00:00', 'TN890123456', 'Shipped', 27.99),
+    (19, '2023-10-17T06:00:00', 'TN901234567', 'Shipped', 28.99),
+    (20, '2023-10-17T07:00:00', 'TN012345678', 'Shipped', 29.99);
+
+-- Insert data for thePromotionsMember  Member  table	
+	INSERT INTO PromotionsMember (MemberID,PromotionID)
+	VALUES 
+    (1, 1),
+    (2, 2),
+    (3, 3),
+    (4, 4),
+    (5, 5),
+    (6, 6),
+    (7, 7),
+    (8, 8),
+    (9, 9),
+    (10, 10),
+    (11, 11),
+    (12, 12),
+    (13, 13),
+    (1, 14),
+    (2, 15),
+    (3, 16),
+    (4, 17),
+    (5, 18),
+    (6, 19),
+    (7, 20);
+
+
+	--ETL--ETL--ETL--ETL--ETL--ETL
+-- Update MembershipType to 'Gold' for member with PersonalNumber '197610174433'
+	UPDATE MemberA
+	 SET MembershipType ='Gold'
+	WHERE PersonalNumber ='197610174433'
+
+	DELETE FROM Wishlist 
+	WHERE WishlistID =20
+	
